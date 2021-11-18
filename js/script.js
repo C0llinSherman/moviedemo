@@ -5,7 +5,9 @@ $('#search-field').keyup(function (event) {
 });
 
 $('#search').click(function () {
+  console.log("click")
   searchInput()
+  console.log(movieSearchQuery)
   window.location.href = 'search.html';
 });
 
