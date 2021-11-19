@@ -30,20 +30,15 @@ function render(data) {
               </div>
               <div class="mdl-card__actions">
                 <a class="android-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="details.html" onclick="saveID(${data
-					.results[i].id})">
+				.results[i].id})">
                   More Details
 
                 </a>`;
 		for (let j = 0; j < savedMovies.length; j++) {
-			console.log(data.results[i].id);
-			console.log(savedMovies[j].id);
 			if (data.results[i].id == savedMovies[j].id) {
-				console.log('ON');
 				heartState = `<i class="fa-solid fa-heart active" onclick="saveMovie(${data.results[i].id})"></i>`;
-				console.log(heartState);
 				break;
 			} else {
-				console.log('OFF');
 				heartState = `<i class="fa-solid fa-heart" onclick="saveMovie(${data.results[i].id})"></i>`;
 			}
 		}
@@ -79,6 +74,7 @@ function viewDetails() {
 	movieDetails(detailsRender);
 }
 function detailsRender(data) {
+	console.log(data);
 	movie_id = localStorage.getItem('MOVIEID');
 	endlessScroll = false;
 	let detailsHTML = `<div class="android-wear-section" style = "background: url('https://image.tmdb.org/t/p/w500${data.backdrop_path}'); background-size: cover; background-position: center;">
@@ -104,7 +100,9 @@ function detailsRender(data) {
     </div>
   </div>
 </div>
+<h6>Cast</h6>
 <div id = "cast" class="scrolling-wrapper"></div>
+<h6>Similar Movies</h6>
 <div id = "similar" class="scrolling-wrapper"></div>
 <p id='commentTitle' class="mdl-typography--headline mdl-typography--font-thin">Comments</p>
 <form id='comment'>
@@ -123,6 +121,15 @@ function detailsRender(data) {
 	// listen to enter or clicking the send button for comments
 	document.querySelector('form').addEventListener('submit', (e) => {
 		e.preventDefault();
+		// input validaion
+		const input = document.querySelector('.mdl-js-textfield input');
+		if (input.value.trim() == '' || input.value === 'Enter Something...') {
+			input.value = 'Enter Something...';
+			setTimeout(() => {
+				input.value = '';
+			}, 1000);
+			return;
+		}
 		// save user input to local storage
 		saveComments();
 		// renders comments after user event
@@ -144,24 +151,27 @@ function detailsRender(data) {
 	renderComments();
 }
 function insertCast(data) {
-	console.log(data);
 	let castHTML = '';
+	let imageSource = ``;
+
 	for (let i = 0; i < data.cast.length; i++) {
-		castHTML += `<div class="card">
-      <img src="https://image.tmdb.org/t/p/w500/${data.cast[i].profile_path}">
-      <p>${data.cast[i].name}</p>
-      <p>${data.cast[i].character}</p>
-  </div>`;
+		if (data.cast[i].profile_path !== null) {
+			imageSource = `https://image.tmdb.org/t/p/w500/${data.cast[i].profile_path}`;
+			castHTML += `<div class="card">
+		  <img src="${imageSource}">
+		  <p>${data.cast[i].name}</p>
+		  
+	  </div>`;
+		}
 	}
 	document.getElementById('cast').innerHTML = castHTML;
 }
 function insertSimilarMovies(data) {
-	console.log(data);
 	let castHTML = '';
 	for (let i = 0; i < data.results.length; i++) {
 		castHTML += `<div onclick = 'saveID(${data.results[i].id})' class="card">
       <img src="https://image.tmdb.org/t/p/w500/${data.results[i].poster_path}">
-      <p>${data.results[i].title}</p>
+     
       
   </div>`;
 		document.getElementById('similar').innerHTML = castHTML;
@@ -218,7 +228,7 @@ function saveComments() {
 			// if there is a movie id in the array that matches the current movie details id
 			// this if else checks if comments have been made to the movie
 			if (!movie.hasOwnProperty('comments')) {
-				movie.comments = [ input.value ];
+				movie.comments = [input.value];
 				input.value = '';
 				save();
 				return;
@@ -232,7 +242,7 @@ function saveComments() {
 	}
 	// if the function makes it to here it means there isn't a movie with the same id in the array
 	// therefore we made our own object and push it the current movie id and the input value from the user
-	savedMovies.push({ id: Number(movie_id), comments: [ input.value ] });
+	savedMovies.push({ id: Number(movie_id), comments: [input.value] });
 	input.value = '';
 	save();
 }
@@ -257,7 +267,7 @@ function savedAPICall() {
 	let imageSource = ``;
 	// fix for last hearted movie not being deleted
 	if (savedMovies.length === 0) {
-		document.getElementById('movieCards').innerHTML = 'You have 0 movies saved';
+		document.getElementById('movieCards').innerHTML = '<p id = "noResults">You have 0 movies saved</p>';
 		return;
 	}
 	for (let i = 0; i < savedMovies.length; i++) {
