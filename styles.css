@@ -741,7 +741,9 @@ input[type='submit']:hover {
 	font-family: inherit;
 	font-weight: 300;
 }
-
+.commentBox p:first-child {
+	animation: textBubble .3s ease-in;
+}
 .scrolling-wrapper {
 	overflow-x: scroll;
 	overflow-y: hidden;
@@ -822,4 +824,12 @@ iframe {
 }
 #similar .card:hover {
 	cursor: pointer;
+}
+@keyframes textBubble {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
 }
